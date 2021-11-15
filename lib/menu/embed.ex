@@ -14,19 +14,27 @@ defmodule Fetcher2.Menu.Embed do
         name not in Application.fetch_env!(:fetcher2, :excluded_dhall_categories)
       end)
       |> Enum.map(fn category ->
-        %{"name" => name, "items" => items} = category
+        %{"name" => cat_name, "items" => items} = category
 
         val =
           items
-          |> Enum.map(fn %{"name" => name} ->
-            String.trim(name)
+          |> Enum.map(fn %{"name" => name, "nutrients" => nuts} ->
+            String.trim(name) <>
+              if cat_name == "BAKERY-DESSERT" do
+                %{"value" => sugar_val} =
+                  Enum.find(nuts, fn %{"name" => nutname} -> nutname == "Sugar (g)" end)
+
+                " *(#{sugar_val}g sugar)*"
+              else
+                ""
+              end
           end)
-          |> Enum.join("\n")
+          |> Enum.join(", ")
 
         %Nostrum.Struct.Embed.Field{
-          name: name,
+          name: cat_name,
           value: val,
-          inline: true
+          inline: false
         }
       end)
 
@@ -51,7 +59,22 @@ defmodule Fetcher2.Menu.Embed do
           "Breakfast" -> 0xA1DBEF
           "Lunch" -> 0xFBBA55
           "Dinner" -> 0xDA4B51
-          "Late Night" -> 0x363B4B
+          "Late Night" -> 0x181A2E
+        end
+      )
+      |> put_thumbnail(
+        case period do
+          "Breakfast" ->
+            "https://cdn.discordapp.com/attachments/552980096315686955/909674115370192906/opt__aboutcom__coeus__resources__content_migration__serious_eats__seriouseats.png"
+
+          "Lunch" ->
+            "https://cdn.discordapp.com/attachments/552980096315686955/909674915127504927/ROLOS_AF_Sandwich_2.png"
+
+          "Dinner" ->
+            "https://cdn.discordapp.com/attachments/552980096315686955/909675166823510056/high-protein-dinners-slow-cooker-meatballs-image-5a04d02.png"
+
+          "Late Night" ->
+            "https://cdn.discordapp.com/attachments/552980096315686955/909675297274724393/lidar-physics-5955-scaled.png"
         end
       )
 

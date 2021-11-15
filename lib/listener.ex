@@ -10,22 +10,24 @@ defmodule Fetcher2.Listener do
     Consumer.start_link(__MODULE__)
   end
 
-  # @dialyzer {:nowarn_function, handle_interaction: 1}
   defp handle_interaction(%Interaction{data: %{name: "dhall"}} = interaction) do
     # DHALL COMMAND (GET MENU CONTENTS)
     %Interaction{token: token, data: %{options: options}} = interaction
-    [%{name: "period", value: meal_period}] = options
-    Logger.debug("Meal period: #{meal_period}")
+    debug(options)
+    %{value: meal_period} = Enum.find(options, fn o -> o.name == "period" end)
+    %{value: day_choice} = Enum.find(options, %{value: "default"}, fn o -> o.name == "day" end)
+    Logger.debug("New /dhall request. Meal period: #{meal_period}. Day: #{day_choice}")
 
     # Defer response
     response = %{type: 5}
     Api.create_interaction_response(interaction, response)
+    Process.sleep(10)
 
     query = %Fetcher2.Menu.Query{
       period: meal_period,
       id: %Fetcher2.Menu.Identifier{
         location: :dhall,
-        date: DateTime.now!("America/New_York", Tzdata.TimeZoneDatabase) |> DateTime.to_date()
+        date: Fetcher2.Menu.Day.determine_day(day_choice)
       }
     }
 
@@ -55,7 +57,7 @@ defmodule Fetcher2.Listener do
 
   def handle_event({:READY, event, _ws_state}) do
     Logger.debug("#{event.user.username} is Ready.")
-    # Fetcher2.RegisterSlashCommands.register()
+    Fetcher2.RegisterSlashCommands.register()
   end
 
   def handle_event({:MESSAGE_CREATE, msg, _ws_state}) do
@@ -69,6 +71,7 @@ defmodule Fetcher2.Listener do
   end
 
   def handle_event({:INTERACTION_CREATE, interaction, _ws_state}) do
+    Logger.debug("Incoming interaction!" <> inspect(interaction, pretty: true))
     handle_interaction(interaction)
   end
 

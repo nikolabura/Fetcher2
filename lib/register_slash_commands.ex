@@ -7,28 +7,33 @@ defmodule Fetcher2.RegisterSlashCommands do
       description: "What's on the dining hall menu?",
       options: [
         %{
-          # ApplicationCommandType::STRING
           type: 3,
           name: "period",
           description: "The dining period to query.",
           required: true,
           choices: [
-            %{
-              name: "breakfast",
-              value: "Breakfast"
-            },
-            %{
-              name: "lunch",
-              value: "Lunch"
-            },
-            %{
-              name: "dinner",
-              value: "Dinner"
-            },
-            %{
-              name: "late night",
-              value: "Late Night"
-            }
+            %{name: "breakfast", value: "Breakfast"},
+            %{name: "lunch", value: "Lunch"},
+            %{name: "dinner", value: "Dinner"},
+            %{name: "late night", value: "Late Night"}
+          ]
+        },
+        %{
+          type: 3,
+          name: "day",
+          description: "Which day to query? If excluded, Fetcher will try to read your mind.",
+          required: false,
+          choices: [
+            %{name: "today", value: "today"},
+            %{name: "tomorrow", value: "tomorrow"},
+            %{name: "yesterday", value: "yesterday"},
+            %{name: "monday", value: "monday"},
+            %{name: "tuesday", value: "tuesday"},
+            %{name: "wednesday", value: "wednesday"},
+            %{name: "thursday", value: "thursday"},
+            %{name: "friday", value: "friday"},
+            %{name: "saturday", value: "saturday"},
+            %{name: "sunday", value: "sunday"}
           ]
         }
       ]
