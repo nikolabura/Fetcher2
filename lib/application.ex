@@ -6,7 +6,8 @@ defmodule Fetcher2.Application do
   def start(_type, _args) do
     children = [
       Fetcher2.Listener,
-      Fetcher2.Menu.Server
+      Fetcher2.Menu.Server,
+      Fetcher2.DailyJob
     ]
 
     Logger.info("Starting Fetcher!")

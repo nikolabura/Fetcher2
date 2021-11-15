@@ -13,7 +13,7 @@ defmodule Fetcher2.Listener do
   defp handle_interaction(%Interaction{data: %{name: "dhall"}} = interaction) do
     # DHALL COMMAND (GET MENU CONTENTS)
     %Interaction{token: token, data: %{options: options}} = interaction
-    debug(options)
+    #debug(options)
     %{value: meal_period} = Enum.find(options, fn o -> o.name == "period" end)
     %{value: day_choice} = Enum.find(options, %{value: "default"}, fn o -> o.name == "day" end)
     Logger.debug("New /dhall request. Meal period: #{meal_period}. Day: #{day_choice}")
@@ -42,7 +42,7 @@ defmodule Fetcher2.Listener do
       tts: false,
       username: "",
       avatar_url: "",
-      embeds: [Fetcher2.Menu.Embed.build_embed(query, menu)]
+      embeds: [Fetcher2.Menu.Embed.build_embed(query, menu, options)]
     }
 
     debug(
@@ -57,7 +57,7 @@ defmodule Fetcher2.Listener do
 
   def handle_event({:READY, event, _ws_state}) do
     Logger.debug("#{event.user.username} is Ready.")
-    Fetcher2.RegisterSlashCommands.register()
+    #Fetcher2.RegisterSlashCommands.register()
   end
 
   def handle_event({:MESSAGE_CREATE, msg, _ws_state}) do
@@ -71,7 +71,7 @@ defmodule Fetcher2.Listener do
   end
 
   def handle_event({:INTERACTION_CREATE, interaction, _ws_state}) do
-    Logger.debug("Incoming interaction!" <> inspect(interaction, pretty: true))
+    Logger.debug("Incoming interaction from #{interaction.member.user.username}!")
     handle_interaction(interaction)
   end
 

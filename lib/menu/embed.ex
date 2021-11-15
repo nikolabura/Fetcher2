@@ -1,12 +1,17 @@
 defmodule Fetcher2.Menu.Embed do
   alias Fetcher2.Menu.Query
   import Nostrum.Struct.Embed
+  require Logger
 
-  @spec build_embed(%Query{}, %{}) :: %Nostrum.Struct.Embed{}
-  def build_embed(query, menu) do
+  @spec build_embed(%Query{}, %{}, %{}) :: %Nostrum.Struct.Embed{}
+  def build_embed(query, menu, user_options) do
     %{period: period} = query
     %{id: %{date: date}} = query
     %{"categories" => categories} = menu
+
+    only_vegan = Enum.any?(user_options, fn o -> o.name == "only-vegan" and o.value end)
+    only_vegetarian = Enum.any?(user_options, fn o -> o.name == "only-vegetarian" and o.value end)
+    only_gf = Enum.any?(user_options, fn o -> o.name == "only-gluten-free" and o.value end)
 
     fields =
       categories
@@ -18,6 +23,14 @@ defmodule Fetcher2.Menu.Embed do
 
         val =
           items
+          |> Enum.filter(fn item ->
+            filters = item["filters"]
+
+            Enum.empty?(filters) or
+              ((not only_vegan or has_name(filters, "Vegan")) and
+                 (not only_vegetarian or has_name(filters, "Vegetarian")) and
+                 (not only_gf or has_name(filters, "Avoiding Gluten")))
+          end)
           |> Enum.map(fn %{"name" => name, "nutrients" => nuts} ->
             String.trim(name) <>
               if cat_name == "BAKERY-DESSERT" do
@@ -31,12 +44,17 @@ defmodule Fetcher2.Menu.Embed do
           end)
           |> Enum.join(", ")
 
-        %Nostrum.Struct.Embed.Field{
-          name: cat_name,
-          value: val,
-          inline: false
-        }
+        if val == "" do
+          nil
+        else
+          %Nostrum.Struct.Embed.Field{
+            name: cat_name <> " :bwaefwowl:",
+            value: val,
+            inline: false
+          }
+        end
       end)
+      |> Enum.filter(&(!is_nil(&1)))
 
     # |> Enum.chunk_every(2)
     # |> Enum.intersperse([
@@ -51,9 +69,14 @@ defmodule Fetcher2.Menu.Embed do
 
     date_string = Calendar.strftime(date, "%a, %b %d, %Y")
 
+    desc1 = if only_vegan, do: "*Only showing :regional_indicator_v: vegan items.*\n", else: ""
+    desc2 = if only_vegetarian, do: "*Only showing :leafy_green: vegetarian items.*\n", else: ""
+    desc3 = if only_gf, do: "*Only showing :purple_square: gluten-free items.*\n", else: ""
+
     embed =
       %Nostrum.Struct.Embed{}
       |> put_title("D-Hall __#{period}__ Menu for #{date_string}")
+      |> put_description(desc1 <> desc2 <> desc3)
       |> put_color(
         case period do
           "Breakfast" -> 0xA1DBEF
@@ -81,5 +104,9 @@ defmodule Fetcher2.Menu.Embed do
     embed = Map.put(embed, :fields, fields)
 
     embed
+  end
+
+  defp has_name(enum_of_maps_with_name, name_to_search) do
+    Enum.any?(enum_of_maps_with_name, &(&1["name"] == name_to_search))
   end
 end

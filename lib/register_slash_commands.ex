@@ -1,5 +1,6 @@
 defmodule Fetcher2.RegisterSlashCommands do
   require Logger
+  import Fetcher2.Util
 
   def register() do
     dhall = %{
@@ -35,6 +36,24 @@ defmodule Fetcher2.RegisterSlashCommands do
             %{name: "saturday", value: "saturday"},
             %{name: "sunday", value: "sunday"}
           ]
+        },
+        %{
+          type: 5,
+          name: "only-vegan",
+          description: "Only display vegan items. (False by default. Setting this to false has no effect.)",
+          required: false,
+        },
+        %{
+          type: 5,
+          name: "only-vegetarian",
+          description: "Only display vegetarian items. (False by default. Setting this to false has no effect.)",
+          required: false,
+        },
+        %{
+          type: 5,
+          name: "only-gluten-free",
+          description: "Only display gluten-free items. (False by default. Setting this to false has no effect.)",
+          required: false,
         }
       ]
     }
@@ -42,6 +61,6 @@ defmodule Fetcher2.RegisterSlashCommands do
     Logger.notice("Registering slash commands now.")
     guild = Application.get_env(:fetcher2, :testserv_guild_id)
 
-    Nostrum.Api.create_guild_application_command(guild, dhall)
+    debug(Nostrum.Api.create_guild_application_command(guild, dhall))
   end
 end
