@@ -48,7 +48,7 @@ defmodule Fetcher2.Menu.Embed do
           nil
         else
           %Nostrum.Struct.Embed.Field{
-            name: cat_name <> category_icon(cat_name),
+            name:  category_icon(cat_name) <> cat_name,
             value: val,
             inline: false
           }
@@ -131,6 +131,6 @@ defmodule Fetcher2.Menu.Embed do
       _ -> ""
     end
 
-    "  " <> icon
+    icon <> "  "
   end
 end
