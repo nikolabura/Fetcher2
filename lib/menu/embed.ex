@@ -48,7 +48,7 @@ defmodule Fetcher2.Menu.Embed do
           nil
         else
           %Nostrum.Struct.Embed.Field{
-            name: cat_name <> " :bwaefwowl:",
+            name: cat_name <> category_icon(cat_name),
             value: val,
             inline: false
           }
@@ -108,5 +108,29 @@ defmodule Fetcher2.Menu.Embed do
 
   defp has_name(enum_of_maps_with_name, name_to_search) do
     Enum.any?(enum_of_maps_with_name, &(&1["name"] == name_to_search))
+  end
+
+  defp category_icon(cat_name) do
+    icon = case cat_name do
+      # breakfast
+      "HOMESTYLE BREAKFAST" -> ":shallow_pan_of_food:"
+      "MY PANTRY EXHIBITION" -> ":fork_knife_plate:"
+      "BAKERY-DESSERT" -> ":cake:"
+      # lunch
+      "CREATE YOUR BOWL" -> ":rice:"
+      "AVOIDING GLUTEN/HALAL" -> ":purple_circle:"
+      "GRILL/HOMESTYLE" -> ":hotsprings:"
+      "ROOTED" -> ":salad:"
+      "SOUP" -> ":bowl_with_spoon:"
+      "PASTA BAR" -> ":spaghetti:"
+      "SALAD BAR COMPOSED SALADS" -> ":salad:"
+      "PIZZA/FLATBREADS" -> ":pizza:"
+      # late night
+      "THE GRILL" -> ":hamburger:"
+
+      _ -> ""
+    end
+
+    "  " <> icon
   end
 end

@@ -1,6 +1,5 @@
 defmodule Fetcher2.RegisterSlashCommands do
   require Logger
-  import Fetcher2.Util
 
   def register() do
     dhall = %{
@@ -58,9 +57,14 @@ defmodule Fetcher2.RegisterSlashCommands do
       ]
     }
 
-    Logger.notice("Registering slash commands now.")
+    Logger.notice("Registering guild-local slash commands now.")
     guild = Application.get_env(:fetcher2, :testserv_guild_id)
 
-    debug(Nostrum.Api.create_guild_application_command(guild, dhall))
+    Nostrum.Api.create_guild_application_command(guild, dhall)
+
+    if System.get_env("PUSH_GLOBAL_SLASH_COMMANDS") == "1" do
+      Logger.warn("PUSHING GLOBAL SLASH COMMANDS NOW!")
+      Nostrum.Api.create_global_application_command(dhall)
+    end
   end
 end

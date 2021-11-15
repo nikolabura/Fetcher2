@@ -1,6 +1,6 @@
 defmodule Fetcher2.Listener do
   use Nostrum.Consumer
-  import Fetcher2.Util
+  require Fetcher2.Util
   require Logger
 
   alias Nostrum.Api
@@ -10,13 +10,14 @@ defmodule Fetcher2.Listener do
     Consumer.start_link(__MODULE__)
   end
 
+  @dialyzer {:no_return, handle_interaction: 1}
   defp handle_interaction(%Interaction{data: %{name: "dhall"}} = interaction) do
     # DHALL COMMAND (GET MENU CONTENTS)
     %Interaction{token: token, data: %{options: options}} = interaction
-    #debug(options)
+    # debug(options)
     %{value: meal_period} = Enum.find(options, fn o -> o.name == "period" end)
     %{value: day_choice} = Enum.find(options, %{value: "default"}, fn o -> o.name == "day" end)
-    Logger.debug("New /dhall request. Meal period: #{meal_period}. Day: #{day_choice}")
+    Logger.debug("Got /dhall request. Meal period: #{meal_period}. Day: #{day_choice}")
 
     # Defer response
     response = %{type: 5}
@@ -45,19 +46,18 @@ defmodule Fetcher2.Listener do
       embeds: [Fetcher2.Menu.Embed.build_embed(query, menu, options)]
     }
 
-    debug(
+    {:ok, _} =
       Api.request(
         :post,
         Nostrum.Constants.webhook_token(Nostrum.Cache.Me.get().id, token),
         response,
         wait: false
       )
-    )
   end
 
   def handle_event({:READY, event, _ws_state}) do
     Logger.debug("#{event.user.username} is Ready.")
-    #Fetcher2.RegisterSlashCommands.register()
+    Fetcher2.RegisterSlashCommands.register()
   end
 
   def handle_event({:MESSAGE_CREATE, msg, _ws_state}) do
@@ -71,7 +71,7 @@ defmodule Fetcher2.Listener do
   end
 
   def handle_event({:INTERACTION_CREATE, interaction, _ws_state}) do
-    Logger.debug("Incoming interaction from #{interaction.member.user.username}!")
+    Logger.debug("Incoming interaction from #{interaction.user.username}!")
     handle_interaction(interaction)
   end
 
