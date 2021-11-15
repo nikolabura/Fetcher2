@@ -26,3 +26,4 @@ fetcher2-*.tar
 /tmp/
 
 .elixir_ls
+config/config.exs
