@@ -50,7 +50,7 @@ defmodule Fetcher2.Menu.Server do
     datestr = Date.to_string(date)
 
     url =
-      "https://api.dineoncampus.com/v1/location/menu?site_id=5751fd3690975b60e04893e2&platform=0&location_id=5873e39e3191a200fa4e8399&date=#{datestr}"
+      "https://api.dineoncampus.com/v1/location/menu?site_id=5751fd3690975b60e04893e2&platform=0&location_id=61f9b37cb63f1ed3696abfbe&date=#{datestr}"
 
     Logger.info("New API request for #{url}")
 
