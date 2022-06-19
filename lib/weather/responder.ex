@@ -29,7 +29,7 @@ defmodule Fetcher2.Weather.Responder do
         "textDescription" => textDescription,
         "icon" => iconUrl,
         "temperature" => %{"value" => tempC},
-        "relativeHumidity" => %{"value" => relHumid}
+        "relativeHumidity" => %{"value" => _relHumid}
       }
     } = Jason.decode!(body)
 
