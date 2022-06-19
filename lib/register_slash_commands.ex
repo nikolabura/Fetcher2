@@ -39,32 +39,51 @@ defmodule Fetcher2.RegisterSlashCommands do
         %{
           type: 5,
           name: "only-vegan",
-          description: "Only display vegan items. (False by default. Setting this to false has no effect.)",
-          required: false,
+          description:
+            "Only display vegan items. (False by default. Setting this to false has no effect.)",
+          required: false
         },
         %{
           type: 5,
           name: "only-vegetarian",
-          description: "Only display vegetarian items. (False by default. Setting this to false has no effect.)",
-          required: false,
+          description:
+            "Only display vegetarian items. (False by default. Setting this to false has no effect.)",
+          required: false
         },
         %{
           type: 5,
           name: "only-gluten-free",
-          description: "Only display gluten-free items. (False by default. Setting this to false has no effect.)",
-          required: false,
+          description:
+            "Only display gluten-free items. (False by default. Setting this to false has no effect.)",
+          required: false
         }
       ]
     }
 
+    weather = %{
+      name: "weather",
+      description: "How's the weather on campus right now?"
+    }
+
+    forecast = %{
+      name: "forecast",
+      description: "What will the weather be like on campus today?"
+    }
+
+    commands = [dhall, weather, forecast]
+
     Logger.notice("Registering guild-local slash commands now.")
     guild = Application.get_env(:fetcher2, :testserv_guild_id)
 
-    Nostrum.Api.create_guild_application_command(guild, dhall)
+    for command <- commands do
+      inspect(Nostrum.Api.create_guild_application_command(guild, command))
+    end
 
     if System.get_env("PUSH_GLOBAL_SLASH_COMMANDS") == "1" do
       Logger.warn("PUSHING GLOBAL SLASH COMMANDS NOW!")
-      Nostrum.Api.create_global_application_command(dhall)
+      for command <- commands do
+        Logger.warning(inspect(Nostrum.Api.create_global_application_command(command)))
+      end
     end
   end
 end

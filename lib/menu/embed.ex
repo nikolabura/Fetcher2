@@ -33,7 +33,7 @@ defmodule Fetcher2.Menu.Embed do
           end)
           |> Enum.map(fn %{"name" => name, "nutrients" => nuts} ->
             String.trim(name) <>
-              if cat_name == "BAKERY-DESSERT" do
+              if cat_name == "BAKERY" do
                 %{"value" => sugar_val} =
                   Enum.find(nuts, fn %{"name" => nutname} -> nutname == "Sugar (g)" end)
 
@@ -113,10 +113,13 @@ defmodule Fetcher2.Menu.Embed do
   defp category_icon(cat_name) do
     icon = case cat_name do
       # breakfast
+      "HOMESTYLE/GRILL" -> ":shallow_pan_of_food:"
       "HOMESTYLE BREAKFAST" -> ":shallow_pan_of_food:"
       "MY PANTRY EXHIBITION" -> ":fork_knife_plate:"
       "BAKERY-DESSERT" -> ":cake:"
+      "BAKERY" -> ":cake:"
       # lunch
+      "G8/HALAL" -> ":purple_circle:"
       "CREATE YOUR BOWL" -> ":rice:"
       "AVOIDING GLUTEN/HALAL" -> ":purple_circle:"
       "GRILL/HOMESTYLE" -> ":hotsprings:"
@@ -124,6 +127,7 @@ defmodule Fetcher2.Menu.Embed do
       "SOUP" -> ":bowl_with_spoon:"
       "PASTA BAR" -> ":spaghetti:"
       "SALAD BAR COMPOSED SALADS" -> ":salad:"
+      "COMPOSED SALAD/GRAINS" -> ":salad:"
       "PIZZA/FLATBREADS" -> ":pizza:"
       # late night
       "THE GRILL" -> ":hamburger:"
