@@ -49,8 +49,8 @@ defmodule Fetcher2.Menu.Server do
   defp api_request(%Identifier{date: date, location: :dhall}) do
     datestr = Date.to_string(date)
 
-    url =
-      "https://api.dineoncampus.com/v1/location/menu?site_id=5751fd3690975b60e04893e2&platform=0&location_id=61f9b37cb63f1ed3696abfbe&date=#{datestr}"
+    #url = "https://api.dineoncampus.com/v1/location/menu?site_id=5751fd3690975b60e04893e2&platform=0&location_id=61f9b37cb63f1ed3696abfbe&date=#{datestr}"
+    url = "https://api.dineoncampus.com/v1/location/63092f8ac625af0ee6331311/periods/63e2842bc625af08c43d8faf?platform=0&date=#{datestr}"
 
     Logger.info("New API request for #{url}")
 
@@ -62,6 +62,7 @@ defmodule Fetcher2.Menu.Server do
       )
 
     %{"menu" => menu} = Jason.decode!(body)
+    IO.inspect(menu)
     menu
   end
 end

@@ -10,7 +10,6 @@ defmodule Fetcher2.Listener do
     Consumer.start_link(__MODULE__)
   end
 
-  @dialyzer {:no_return, handle_interaction: 1}
   defp handle_interaction(%Interaction{data: %{name: "dhall"}} = interaction) do
     # DHALL COMMAND (GET MENU CONTENTS)
     %Interaction{token: token, data: %{options: options}} = interaction
@@ -33,21 +32,29 @@ defmodule Fetcher2.Listener do
       }
     }
 
-    # get the menu (ideally cached) from the menu server
-    menu =
-      GenServer.call(
-        Fetcher2.Menu.Server,
-        {:query, query},
-        30000
-      )
+    response = try do
+      # get the menu (ideally cached) from the menu server
+      menu =
+        GenServer.call(
+          Fetcher2.Menu.Server,
+          {:query, query},
+          30000
+        )
 
-    # build the response
-    response = %{
-      tts: false,
-      username: "",
-      avatar_url: "",
-      embeds: [Fetcher2.Menu.Embed.build_embed(query, menu, options)]
-    }
+      # build the response
+      %{
+        tts: false,
+        username: "",
+        avatar_url: "",
+        embeds: [Fetcher2.Menu.Embed.build_embed(query, menu, options)]
+      }
+    catch
+      :exit, exit_details ->
+        error = exit_details |> elem(0) |> elem(0) |> Kernel.inspect()
+        %{
+          content: "**Error occurred.** This may be a bot issue, or it may be a DineOnCampus data issue. If it persists, contact an administrator.\n```elixir\n" <> error <> "```"
+        }
+    end
 
     # send the real response
     {:ok, _} =
@@ -59,7 +66,6 @@ defmodule Fetcher2.Listener do
       )
   end
 
-  @dialyzer {:no_return, handle_interaction: 1}
   defp handle_interaction(%Interaction{data: %{name: "weather"}} = interaction) do
     # WEATHER COMMAND (GET CAMPUS WEATHER)
     %Interaction{token: token, data: %{options: _options}} = interaction
@@ -83,7 +89,6 @@ defmodule Fetcher2.Listener do
       )
   end
 
-  @dialyzer {:no_return, handle_interaction: 1}
   defp handle_interaction(%Interaction{data: %{name: "forecast"}} = interaction) do
     # FORECAST COMMAND (GET CAMPUS FORECAST FOR THE DAY)
     %Interaction{token: token, data: %{options: _options}} = interaction
@@ -105,6 +110,29 @@ defmodule Fetcher2.Listener do
         followup,
         wait: false
       )
+  end
+
+  defp handle_interaction(%Interaction{type: 3} = interaction) do
+    Logger.debug("got button press!")
+  end
+
+  defp handle_interaction(%Interaction{data: %{name: "duel"}} = interaction) do
+    # DUEL COMMAND (challenge a user to a duel)
+    Logger.debug("Got /duel request")
+
+    if :ets.lookup(:duel_state, "duel_active") == [] do
+      :ets.insert(:duel_state, {"duel_active", 1})
+      Fetcher2.Dueling.start_duel(interaction)
+    else
+      response = %{
+        type: 4,
+        data: %{
+          content: "A duel is already in progress. Cool the bloodlust a bit."
+        }
+      }
+
+      Api.create_interaction_response!(interaction, response)
+    end
   end
 
   def handle_event({:READY, event, _ws_state}) do

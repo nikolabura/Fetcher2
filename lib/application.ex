@@ -12,6 +12,8 @@ defmodule Fetcher2.Application do
 
     Logger.info("Starting Fetcher!")
 
+    :ets.new(:duel_state, [:named_table, :public])
+
     opts = [strategy: :one_for_one, name: Fetcher2.Supervisor]
     Supervisor.start_link(children, opts)
   end

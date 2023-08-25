@@ -70,7 +70,20 @@ defmodule Fetcher2.RegisterSlashCommands do
       description: "What will the weather be like on campus today?"
     }
 
-    commands = [dhall, weather, forecast]
+    duel = %{
+      name: "duel",
+      description: "Challenge a user to a quick-draw duel.",
+      options: [
+        %{
+          type: 6,
+          name: "offender",
+          description: "The user you wish to duel.",
+          required: true
+        }
+      ]
+    }
+
+    commands = [dhall, weather, forecast, duel]
 
     Logger.notice("Registering guild-local slash commands now.")
     guild = Application.get_env(:fetcher2, :testserv_guild_id)
