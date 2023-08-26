@@ -21,12 +21,10 @@ defmodule Fetcher2.DailyJob do
     Enum.map(0..2, fn n ->
       Logger.info("Daily job: Querying day #{n}.")
 
-      query = %Fetcher2.Menu.Query{
+      query = %Fetcher2.Menu.Identifier{
         period: "Breakfast",
-        id: %Fetcher2.Menu.Identifier{
-          location: :dhall,
-          date: Date.add(today, n)
-        }
+        location: :dhall,
+        date: Date.add(today, n)
       }
 
       GenServer.call(

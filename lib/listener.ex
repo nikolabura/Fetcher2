@@ -6,10 +6,6 @@ defmodule Fetcher2.Listener do
   alias Nostrum.Api
   alias Nostrum.Struct.Interaction
 
-  def start_link do
-    Consumer.start_link(__MODULE__)
-  end
-
   defp handle_interaction(%Interaction{data: %{name: "dhall"}} = interaction) do
     # DHALL COMMAND (GET MENU CONTENTS)
     %Interaction{token: token, data: %{options: options}} = interaction
@@ -24,37 +20,39 @@ defmodule Fetcher2.Listener do
     Process.sleep(10)
 
     # determine query parameters
-    query = %Fetcher2.Menu.Query{
+    query = %Fetcher2.Menu.Identifier{
+      location: :dhall,
       period: meal_period,
-      id: %Fetcher2.Menu.Identifier{
-        location: :dhall,
-        date: Fetcher2.Menu.Day.determine_day(day_choice)
-      }
+      date: Fetcher2.Menu.Day.determine_day(day_choice)
     }
 
-    response = try do
-      # get the menu (ideally cached) from the menu server
-      menu =
-        GenServer.call(
-          Fetcher2.Menu.Server,
-          {:query, query},
-          30000
-        )
+    response =
+      try do
+        # get the menu (ideally cached) from the menu server
+        menu =
+          GenServer.call(
+            Fetcher2.Menu.Server,
+            {:query, query},
+            30000
+          )
 
-      # build the response
-      %{
-        tts: false,
-        username: "",
-        avatar_url: "",
-        embeds: [Fetcher2.Menu.Embed.build_embed(query, menu, options)]
-      }
-    catch
-      :exit, exit_details ->
-        error = exit_details |> elem(0) |> elem(0) |> Kernel.inspect()
+        # build the response
         %{
-          content: "**Error occurred.** This may be a bot issue, or it may be a DineOnCampus data issue. If it persists, contact an administrator.\n```elixir\n" <> error <> "```"
+          tts: false,
+          username: "",
+          avatar_url: "",
+          embeds: [Fetcher2.Menu.Embed.build_embed(query, menu, options)]
         }
-    end
+      catch
+        :exit, exit_details ->
+          error = exit_details |> elem(0) |> elem(0) |> Kernel.inspect()
+
+          %{
+            content:
+              "**Error occurred.** This may be a bot issue, or it may be a DineOnCampus data issue. If it persists, contact an administrator.\n```elixir\n" <>
+                error <> "```"
+          }
+      end
 
     # send the real response
     {:ok, _} =
@@ -112,7 +110,7 @@ defmodule Fetcher2.Listener do
       )
   end
 
-  defp handle_interaction(%Interaction{type: 3} = interaction) do
+  defp handle_interaction(%Interaction{type: 3} = _interaction) do
     Logger.debug("got button press!")
   end
 

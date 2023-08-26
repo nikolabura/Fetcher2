@@ -1,13 +1,12 @@
 defmodule Fetcher2.Menu.Embed do
-  alias Fetcher2.Menu.Query
+  alias Fetcher2.Menu.Identifier
   import Nostrum.Struct.Embed
   require Logger
 
-  @spec build_embed(%Query{}, %{}, %{}) :: %Nostrum.Struct.Embed{}
+  @spec build_embed(%Identifier{}, %{}, %{}) :: %Nostrum.Struct.Embed{}
   def build_embed(query, menu, user_options) do
-    %{period: period} = query
-    %{id: %{date: date}} = query
-    %{"categories" => categories} = menu
+    %{period: period, date: date} = query
+    categories = menu
 
     only_vegan = Enum.any?(user_options, fn o -> o.name == "only-vegan" and o.value end)
     only_vegetarian = Enum.any?(user_options, fn o -> o.name == "only-vegetarian" and o.value end)
@@ -113,6 +112,7 @@ defmodule Fetcher2.Menu.Embed do
   defp category_icon(cat_name) do
     icon = case cat_name do
       # breakfast
+      "THE KITCHEN" -> ":shallow_pan_of_food:"
       "HOMESTYLE/GRILL" -> ":shallow_pan_of_food:"
       "HOMESTYLE BREAKFAST" -> ":shallow_pan_of_food:"
       "MY PANTRY EXHIBITION" -> ":fork_knife_plate:"
@@ -120,8 +120,10 @@ defmodule Fetcher2.Menu.Embed do
       "BAKERY" -> ":cake:"
       # lunch
       "G8/HALAL" -> ":purple_circle:"
+      "DELICIOUS WITHOUT" -> ":rice:"
       "CREATE YOUR BOWL" -> ":rice:"
       "AVOIDING GLUTEN/HALAL" -> ":purple_circle:"
+      "GRILL" -> ":hotsprings:"
       "GRILL/HOMESTYLE" -> ":hotsprings:"
       "ROOTED" -> ":salad:"
       "SOUP" -> ":bowl_with_spoon:"
@@ -129,6 +131,7 @@ defmodule Fetcher2.Menu.Embed do
       "SALAD BAR COMPOSED SALADS" -> ":salad:"
       "COMPOSED SALAD/GRAINS" -> ":salad:"
       "PIZZA/FLATBREADS" -> ":pizza:"
+      "PIZZA" -> ":pizza:"
       # late night
       "THE GRILL" -> ":hamburger:"
 

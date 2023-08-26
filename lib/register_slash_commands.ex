@@ -93,7 +93,7 @@ defmodule Fetcher2.RegisterSlashCommands do
     end
 
     if System.get_env("PUSH_GLOBAL_SLASH_COMMANDS") == "1" do
-      Logger.warn("PUSHING GLOBAL SLASH COMMANDS NOW!")
+      Logger.warning("PUSHING GLOBAL SLASH COMMANDS NOW!")
       for command <- commands do
         Logger.warning(inspect(Nostrum.Api.create_global_application_command(command)))
       end
