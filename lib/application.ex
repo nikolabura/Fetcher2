@@ -7,12 +7,11 @@ defmodule Fetcher2.Application do
     children = [
       Fetcher2.Listener,
       Fetcher2.Menu.Server,
-      Fetcher2.DailyJob
+      Fetcher2.DailyJob,
+      Fetcher2.Dueling
     ]
 
     Logger.info("Starting Fetcher!")
-
-    :ets.new(:duel_state, [:named_table, :public])
 
     opts = [strategy: :one_for_one, name: Fetcher2.Supervisor]
     Supervisor.start_link(children, opts)

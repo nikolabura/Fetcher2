@@ -110,27 +110,22 @@ defmodule Fetcher2.Listener do
       )
   end
 
-  defp handle_interaction(%Interaction{type: 3} = _interaction) do
-    Logger.debug("got button press!")
+  defp handle_interaction(%Interaction{type: 3} = interaction) do
+    Logger.debug("Got message component interaction (button press)")
+    %{data: %{custom_id: custom_id}} = interaction
+    if String.starts_with?(custom_id, "duel") do
+      if String.ends_with?(custom_id, ["left", "middle", "right"]) do
+        GenServer.call(Fetcher2.Dueling, {:choice_button, custom_id, interaction})
+      else
+        GenServer.call(Fetcher2.Dueling, {:button_press, custom_id, interaction})
+      end
+    end
   end
 
   defp handle_interaction(%Interaction{data: %{name: "duel"}} = interaction) do
     # DUEL COMMAND (challenge a user to a duel)
     Logger.debug("Got /duel request")
-
-    if :ets.lookup(:duel_state, "duel_active") == [] do
-      :ets.insert(:duel_state, {"duel_active", 1})
-      Fetcher2.Dueling.start_duel(interaction)
-    else
-      response = %{
-        type: 4,
-        data: %{
-          content: "A duel is already in progress. Cool the bloodlust a bit."
-        }
-      }
-
-      Api.create_interaction_response!(interaction, response)
-    end
+    GenServer.call(Fetcher2.Dueling, {:start_duel, interaction})
   end
 
   def handle_event({:READY, event, _ws_state}) do

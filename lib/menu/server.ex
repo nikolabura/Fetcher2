@@ -38,9 +38,10 @@ defmodule Fetcher2.Menu.Server do
   defp api_request(%Identifier{date: date, period: period, location: :dhall}) do
     datestr = Date.to_string(date)
 
-    #url = "https://api.dineoncampus.com/v1/location/menu?site_id=5751fd3690975b60e04893e2&platform=0&location_id=61f9b37cb63f1ed3696abfbe&date=#{datestr}"
-    #url = "https://api.dineoncampus.com/v1/location/61f9d7c8a9f13a15d7c1a25e/periods/64e917d7c625af0b584c6658?platform=0&date=#{datestr}"
-    preliminary_url = "https://api.dineoncampus.com/v1/location/61f9d7c8a9f13a15d7c1a25e/periods?platform=0&date=#{datestr}"
+    # url = "https://api.dineoncampus.com/v1/location/menu?site_id=5751fd3690975b60e04893e2&platform=0&location_id=61f9b37cb63f1ed3696abfbe&date=#{datestr}"
+    # url = "https://api.dineoncampus.com/v1/location/61f9d7c8a9f13a15d7c1a25e/periods/64e917d7c625af0b584c6658?platform=0&date=#{datestr}"
+    preliminary_url =
+      "https://api.dineoncampus.com/v1/location/61f9d7c8a9f13a15d7c1a25e/periods?platform=0&date=#{datestr}"
 
     Logger.info("New API request for #{period}. Requesting preliminary: #{preliminary_url}")
 
@@ -52,11 +53,15 @@ defmodule Fetcher2.Menu.Server do
       )
 
     %{"periods" => periods} = Jason.decode!(body)
-    #period_ids = Enum.map(periods, fn p -> {p["name"], p["id"]} end) |> Map.new()
-    #IO.inspect(period_ids)
+    # period_ids = Enum.map(periods, fn p -> {p["name"], p["id"]} end) |> Map.new()
+    # IO.inspect(period_ids)
     relevant_period_id = Enum.find(periods, fn p -> p["name"] == period end)["id"]
-    if relevant_period_id == nil, do: raise "Meal period #{period} not found in DineOnCampus meal period listing."
-    followup_url = "https://api.dineoncampus.com/v1/location/61f9d7c8a9f13a15d7c1a25e/periods/#{relevant_period_id}?platform=0&date=#{datestr}"
+
+    if relevant_period_id == nil,
+      do: raise("Meal period #{period} not found in DineOnCampus meal period listing.")
+
+    followup_url =
+      "https://api.dineoncampus.com/v1/location/61f9d7c8a9f13a15d7c1a25e/periods/#{relevant_period_id}?platform=0&date=#{datestr}"
 
     Logger.info("Making followup request to #{followup_url}")
 
